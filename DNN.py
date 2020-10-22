@@ -39,7 +39,7 @@ def Zscore_nomalization(x_train,x_test,y_train,y_test):
 	
 	return x_train_norm,x_test_norm
 
-def MinMax_normalization(x_train,x_test,y_train,y_test):
+def MinMax_normalization(x_train,x_test):
 	mmsc = MinMaxScaler()
 	x_train_norm = mmsc.fit_transform(x_train)
 	x_test_norm = mmsc.transform(x_test)
