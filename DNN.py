@@ -21,19 +21,23 @@ def LoadData(inputfile,outputfile):
 
 	return x_train,x_test,y_train,y_test
 
-
-def Zscore_nomalization(x_train,x_test,y_train,y_test):
+def Mean_Std(x_train):
 	xmean=np.mean(x_train,axis=0)
 	xstd=np.std(x_train,axis=0)
+	
+	return xmean,xstd
 
-	x_train_norm=np.zeros((6000,14))
-	x_test_norm=np.zeros((1500,14))
 
-	for i in range(0,14):
+def Zscore_nomalization(x_train,x_test,xmean,xstd):
+	
+	x_train_norm=np.zeros((x_train.shape[0],x_train.shape[1]))
+	x_test_norm=np.zeros((x_test.shape[0],x_test.shape[1]))
+
+	for i in range(0,x_train.shape[1]):
 		if xstd[i]!=0:
 			x_train_norm[:,i]=(x_train[:,i]-xmean[i])/xstd[i]
 
-	for i in range(0,14):
+	for i in range(0,x_train.shape[1]):
 		if xstd[i]!=0:
 			x_test_norm[:,i]=(x_test[:,i]-xmean[i])/xstd[i]
 	
@@ -65,15 +69,15 @@ def model_make():
 	
 	return model
 
-def model_compile_MSE():
+def model_compile_MSE(model):
 	model.compile(optimizer='adam',
 		loss='mean_squared_error')
 
-def model_compile_Crossentropy():
+def model_compile_Crossentropy(model):
 	model.compile(optimizer='adam',
 		loss='categorical_crossentropy')
 
-def compare_TV():
+def compare_TV(stack):
 	loss = stack.history['loss']
 	val_loss = stack.history['val_loss']
 	epochs = range(len(loss))
@@ -98,25 +102,25 @@ def evaluation(test_predictions,y_test):
 	fig = plt.figure()
 	plt.plot(test_predictions[RMSE_max])
 	plt.plot(y_test[RMSE_max])
-	filename='./RMSE_max.png'
-	plt.savefig(filename)
+	filename_max='./RMSE_max.png'
+	plt.savefig(filename_max)
 	plt.close()
 
 	fig = plt.figure()
 	plt.plot(test_predictions[RMSE_min])
 	plt.plot(y_test[RMSE_min])
-	filename='./RMSE_min.png'
-	plt.savefig(filename)
+	filename_min='./RMSE_min.png'
+	plt.savefig(filename_min)
 	plt.close()
 
-
+"""
 #main
 inputfile = './TrainingData/CTnumber7500.csv'
 outputfile = './TrainingData/spectrum7500_normalization.csv'
 
 x_train,x_test,y_train,y_test=LoadData(inputfile,outputfile)
 
-x_train_norm,x_test_norm=MinMax_normalization(x_train,x_test,y_train,y_test)
+x_train_norm,x_test_norm=MinMax_normalization(x_train,x_test)
 
 model = model_make()
 
@@ -132,3 +136,4 @@ evaluation(test_predictions,y_test)
 
 model.save('model.h5')
 #np.set_printoptions(threshold=np.inf)
+"""
