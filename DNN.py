@@ -28,20 +28,15 @@ def Mean_Std(x_train):
 	return xmean,xstd
 
 
-def Zscore_nomalization(x_train,x_test,xmean,xstd):
+def Zscore_nomalization(x_train,xmean,xstd):
 	
 	x_train_norm=np.zeros((x_train.shape[0],x_train.shape[1]))
-	x_test_norm=np.zeros((x_test.shape[0],x_test.shape[1]))
 
 	for i in range(0,x_train.shape[1]):
 		if xstd[i]!=0:
 			x_train_norm[:,i]=(x_train[:,i]-xmean[i])/xstd[i]
 
-	for i in range(0,x_train.shape[1]):
-		if xstd[i]!=0:
-			x_test_norm[:,i]=(x_test[:,i]-xmean[i])/xstd[i]
-	
-	return x_train_norm,x_test_norm
+	return x_train_norm
 
 def MinMax_normalization(x_train,x_test):
 	mmsc = MinMaxScaler()
