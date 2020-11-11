@@ -112,13 +112,15 @@ def test_predictions(model,x_test_norm):
 	predictions=model.predict(x_test_norm)
 	return predictions
 
-#推定結果と真値との評価を行う
+#推定結果と真値とのRMSEを計算
 def evaluation(test_predictions,y_test):
 	MSE=mean_squared_error(test_predictions,y_test)
 	RMSE=np.sqrt(MSE)
 	
 	RMSE_max_number=np.argmax(RMSE)
 	RMSE_min_number=np.argmin(RMSE)
+
+	return RMSE,RMSE_max_number,RMSE,min_number
 
 #RMSEが最も大きい(最も外れた結果)を表示
 def evaluation_RMSE_max_fig(RMSE_max_number):
@@ -137,6 +139,13 @@ def evaluation_RMSE_min_fig(RMSE_min_number):
 	filename_min='./RMSE_min.png'
 	plt.savefig(filename_min)
 	plt.close()
+
+#データのファイルへの書き込み
+def write_csv(csv_name,data):
+	with open(csv_name,mode='w') as f:
+        	writer =csv.writer(f)
+        	writer.writerow(data)
+	
 
 def model_save(model,model_name):
 	model.save(model_name)
