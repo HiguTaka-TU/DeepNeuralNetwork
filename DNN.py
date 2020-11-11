@@ -125,7 +125,7 @@ def evaluation(test_predictions,y_test):
 	RMSE_min_number=np.argmin(RMSE)
 
 #RMSEが最も大きい(最も外れた結果)を表示
-def evaluation_RMSE_max_fig(RMSE_max_number)
+def evaluation_RMSE_max_fig(RMSE_max_number):
 	fig = plt.figure()
 	plt.plot(test_predictions[RMSE_max_number])
 	plt.plot(y_test[RMSE_max_number])
@@ -134,7 +134,7 @@ def evaluation_RMSE_max_fig(RMSE_max_number)
 	plt.close()
 
 #RMSEが最も小さい(最も優れた結果)を表示
-def evaluation_RMSE_min_fig(RMSE_min_number)
+def evaluation_RMSE_min_fig(RMSE_min_number):
 	fig = plt.figure()
 	plt.plot(test_predictions[RMSE_min_number])
 	plt.plot(y_test[RMSE_min])
@@ -142,7 +142,8 @@ def evaluation_RMSE_min_fig(RMSE_min_number)
 	plt.savefig(filename_min)
 	plt.close()
 
-
+def model_save(model,model_name):
+	model.save(model_name)
 
 def main():
 	inputfile = './TrainingData/CTnumber7500.csv'
@@ -159,21 +160,32 @@ def main():
 	
 	#Zスコアによる正規化のための平均値、標準偏差を算出
 	x_mean,x_std=calc_mean_std(x_train)
-
-	#正規化(Zスコア)
-	x_train_norm,x_val_norm,x_test_norm=zscore_nomalization(x_train,x_val,x_test,x_mean,x_std)
 	
-	"""
-	#正規化(MinMaxScaler)
-	x_train_norm,x_val_norm,x_test_norm=minmax_normalization(x_train,x_val,x_test)
-	"""
+
+	#正規化を行う
+	scaler='Zscore'
+	#scaler='MinMax'
+	
+	if scaler=='Zscore':
+		#正規化(Zスコア)
+		x_train_norm,x_val_norm,x_test_norm=zscore_nomalization(x_train,x_val,x_test,x_mean,x_std)
+	if scaler=='MinMax':
+		#正規化(MinMaxScaler)
+		x_train_norm,x_val_norm,x_test_norm=minmax_normalization(x_train,x_val,x_test)
+	
 	
 	#モデルの生成
 	model=model_make()
 	
 	#モデルのコンパイル
-	#model_compile_mse(model)
-	model_compile_crossentropy(model) 
+	#loss='mse'
+	loss='crossentropy'
+	
+	if loss=='mse':
+		model_compile_mse(model)
+	
+	if loss=='crossentropy':
+		model_compile_crossentropy(model) 
 	
 	#モデルフィット
 	epochs,batch_size=1,32
@@ -183,7 +195,11 @@ def main():
 	compare_tv(stack,epochs,batch_size)
 
 	#推定
-	predictions=test_prediction(model,x_test_norm)
+	predictions=test_predictions(model,x_test_norm)
+
+	#モデルの保存
+	model_name='DNN_{0}_{1}.h5'.format(scaler,loss)
+	model_save(model,model_name)
 
 	print(predictions)
 
