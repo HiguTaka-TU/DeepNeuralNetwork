@@ -201,12 +201,5 @@ def main():
 	model_name='DNN_{0}_{1}.h5'.format(scaler,loss)
 	model_save(model,model_name)
 
-	print(predictions)
-
-
-	"""
-	model.save('model.h5')
-	#np.set_printoptions(threshold=np.inf)
-	"""
 if __name__=="__main__":
 	main()
