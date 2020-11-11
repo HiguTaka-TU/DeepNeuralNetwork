@@ -15,16 +15,12 @@ def load_data(inputfile,outputfile):
 	CT_values=np.loadtxt(inputfile,delimiter=',')
 	spectrum=np.loadtxt(outputfile,delimiter=' ')
 	
-
-	"""
-	ct_values=np.array(f_input)
-	spectrum=np.array(f_output)
-	"""	
 	return CT_values,spectrum
 
 #データの分割
 def data_split(CT_values,spectrum,data2_fraction):
 	x_1,x_2,y_1,y_2=train_test_split(CT_values,spectrum,test_size=data2_fraction,random_state=0)
+	
 	return x_1,x_2,y_1,y_2
 
 #平均、標準偏差の計算
