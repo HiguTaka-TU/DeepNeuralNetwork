@@ -9,7 +9,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import csv
 
-
 #ファイルを読み込む
 def load_data(inputfile,outputfile):
 	CT_values=np.loadtxt(inputfile,delimiter=',')
@@ -146,10 +145,11 @@ def write_csv(csv_name,data):
         	writer =csv.writer(f)
         	writer.writerow(data)
 	
-
+#モデルの保存
 def model_save(model,model_name):
 	model.save(model_name)
 
+#メイン
 def main():
 	inputfile = './TrainingData/CTnumber7500.csv'
 	outputfile = './TrainingData/spectrum7500_normalization.csv'
