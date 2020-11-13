@@ -7,10 +7,12 @@ from sklearn.model_selection import train_test_split
 import csv
 from sklearn.preprocessing import MinMaxScaler
 
+#モデルの保存
 def RestoreModel(model_name):
 	new_model = tf.keras.models.load_model(modelname)
 	return new_model
 
+#ある評価指標におけるある値を超えた(推定精度の悪い)結果をcsvファイルに書き込む
 def over_limits_prediction(rmse,limits,test_size,y_test,test_predictions)
 	for number in range(test_size)
 		if rmse>limits:
@@ -24,7 +26,20 @@ def over_limits_prediction(rmse,limits,test_size,y_test,test_predictions)
 					writer = csv.writer(f)
 					writer.writerow(test_predictions[i])
 
+#推定結果をテキストファイルに保存
 def save_new_estimation_txt(B3F_Estimation,QQ_Estimation,New_Estimation)
-	np.savetxt('/mnt/nfs_S65/Takayuki/B3F.txt',B3F_Estimation)
-	np.savetxt('/mnt/nfs_S65/Takayuki/QQ.txt',QQ_Estimation)
-	np.savetxt('/mnt/nfs_S65/Takayuki/New.txt',New_Estimation)
+	file_name_B3F=''
+	file_name_QQ=''
+	file_name_New=''
+	
+	np.savetxt(file_name_B3F,B3F_Estimation)
+	np.savetxt(file_name_QQ,QQ_Estimation)
+	np.savetxt(file_name_New,New_Estimation)
+
+#推定結果をcsvファイルに保存
+def save_new_estimation_csv(predictions)
+	save_name=''
+	np.savetxt(save_name,predictions,fmt='%.6f')
+
+if __name__=="__main__":
+	
