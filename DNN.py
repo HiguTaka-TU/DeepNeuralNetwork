@@ -7,6 +7,7 @@ from tensorflow.keras.layers import Dense,Flatten
 from tensorflow.keras import Model
 from sklearn.preprocessing import MinMaxScaler,StandardScaler
 from sklearn.metrics import mean_squared_error
+from keras.callbacks import EarlyStopping
 import csv
 
 #ファイルを読み込む
@@ -79,9 +80,21 @@ def model_compile_crossentropy(model):
 	model.compile(optimizer='adam',
 		loss='categorical_crossentropy')
 
+
+def early_stopping(patience,best):
+	early_stpping = EarlyStopping(patience=patience,restore_best_weights=best)
+	
+	return early_stopping
+	
+
+
 #モデルをフィッティングする
-def model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val):
-	stack=model.fit(x_train_norm,y_train,epochs=epochs,batch_size=batch_size,validation_data=(x_val_norm,y_val))	
+def model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val,early_stopping):
+	stack=model.fit(x_train_norm,y_train,
+			epochs=epochs,
+			batch_size=batch_size,
+			validation_data=(x_val_norm,y_val)
+			callbacks=[early_stopping])	
 	return stack
 
 #学習曲線を表示
