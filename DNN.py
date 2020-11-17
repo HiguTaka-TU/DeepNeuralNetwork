@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import Dense,Flatten
 from tensorflow.keras import Model
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler,StandardScaler
 from sklearn.metrics import mean_squared_error
 import csv
 
@@ -29,30 +29,24 @@ def calc_mean_std(x_train):
 	return xmean,xstd
 
 #Zスコアによる正規化
-def zscore_nomalization(x_train,x_val,x_test,xmean,xstd):
-	x_train_norm=np.zeros((x_train.shape[0],x_train.shape[1]))
-	x_val_norm=np.zeros((x_val.shape[0],x_val.shape[1]))
-	x_test_norm=np.zeros((x_test.shape[0],x_test.shape[1]))
+def zscore_nomalization(x_train,x_val,x_test):
+	scaler = StandardScaler()
 
-	for i in range(0,x_train.shape[1]):
-		if xstd[i]!=0:
-			x_train_norm[:,i]=(x_train[:,i]-xmean[i])/xstd[i]
-	for i in range(0,x_val.shape[1]):
-		if xstd[i]!=0:
-			x_val_norm[:,i]=(x_val[:,i]-xmean[i])/xstd[i]
-	for i in range(0,x_test.shape[1]):
-		if xstd[i]!=0:
-			x_test_norm[:,i]=(x_test[:,i]-xmean[i])/xstd[i]
+	scaler.fit(x_train)
+
+	x_train=scaler.transform(x_train)
+	x_val=scaler.transform(x_train)
+	x_test=scaler.transform(x_train)
 
 	return x_train_norm,x_val_norm,x_test_norm
 
 #MinMaxScalerによる正規化
 def minmax_normalization(x_train,x_val,x_test):
-	mmsc = MinMaxScaler()
+	scaler = MinMaxScaler()
 
-	x_train_norm = mmsc.fit_transform(x_train)
-	x_val_norm   = mmsc.transform(x_val)
-	x_test_norm  = mmsc.transform(x_test)
+	x_train_norm = scaler.fit_transform(x_train)
+	x_val_norm   = scaler.transform(x_val)
+	x_test_norm  = scaler.transform(x_test)
 	np.set_printoptions(threshold=np.inf)
 
 	return x_train_norm,x_val_norm,x_test_norm
