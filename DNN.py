@@ -80,7 +80,7 @@ def model_compile_crossentropy(model):
 	model.compile(optimizer='adam',
 		loss='categorical_crossentropy')
 
-
+#アーリーストッピング
 def early_stopping(patience,best):
 	early_stpping = EarlyStopping(patience=patience,restore_best_weights=best)
 	
@@ -199,9 +199,14 @@ def main():
 	if loss=='crossentropy':
 		model_compile_crossentropy(model) 
 	
+	#アーリーストッピング
+	patience=10
+	best='True'
+	early_stopping=early_stopping(patience,best)
+
 	#モデルフィット
 	epochs,batch_size=1,32
-	stack=model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val)
+	stack=model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val,early_stopping)
 	
 	#学習曲線の表示
 	compare_tv(stack,epochs,batch_size)
