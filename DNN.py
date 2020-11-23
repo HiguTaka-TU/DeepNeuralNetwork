@@ -2,12 +2,13 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import Dense,Flatten
 from tensorflow.keras import Model
 from sklearn.preprocessing import MinMaxScaler,StandardScaler
 from sklearn.metrics import mean_squared_error
-from keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping
 import csv
 
 #ファイルを読み込む
@@ -16,6 +17,13 @@ def load_data(inputfile,outputfile):
 	spectrum=np.loadtxt(outputfile,delimiter=' ')
 	
 	return CT_values,spectrum
+
+def load_data_pd(input_file,output_file):
+	CT_values = pd.read_csv(input_file,header=None) 
+	spectrum = pd.read_csv(output_file,header=None)
+	
+	return CT_values,spectrum
+
 
 #データの分割
 def data_split(CT_values,spectrum,data2_fraction):
@@ -93,7 +101,7 @@ def model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val,earl
 	stack=model.fit(x_train_norm,y_train,
 			epochs=epochs,
 			batch_size=batch_size,
-			validation_data=(x_val_norm,y_val)
+			validation_data=(x_val_norm,y_val),
 			callbacks=[early_stopping])	
 	return stack
 
@@ -158,15 +166,16 @@ def model_save(model,model_name):
 
 #メイン
 def main():
-	inputfile = './TrainingData/CTnumber7500.csv'
-	outputfile = './TrainingData/spectrum7500_normalization.csv'
-
+	input_file ='./training_data/CTvalues/10000.csv'
+	output_file ='./training_data/spectrum/10000.csv'
+	
 	#データの読み込み
-	CT_values,spectrum=load_data(inputfile,outputfile)
-
+	CT_values,spectrum=load_data_pd(input_file,output_file)
+	
+	
 	#訓練データの分割
 	x_train,x_2,y_train,y_2=data_split(CT_values,spectrum,data2_fraction=0.3)
-
+	
 	#検証、テストデータの分割
 	x_val,x_test,y_val,y_test=data_split(x_2,y_2,data2_fraction=0.5)
 	
@@ -217,6 +226,6 @@ def main():
 	#モデルの保存
 	model_name='DNN_{0}_{1}.h5'.format(scaler,loss)
 	model_save(model,model_name)
-
+	"""
 if __name__=="__main__":
 	main()
