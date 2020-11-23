@@ -37,16 +37,17 @@ def calc_mean_std(x_train):
 	xstd=np.std(x_train,axis=0)
 	return xmean,xstd
 
-#Zスコアによる正規化
-def zscore_nomalization(x_train,x_val,x_test):
+#標準化
+def standard_scaler(x_train,x_val,x_test):
 	scaler = StandardScaler()
 
 	scaler.fit(x_train)
-
-	x_train=scaler.transform(x_train)
-	x_val=scaler.transform(x_train)
-	x_test=scaler.transform(x_train)
-
+	x_train_norm=scaler.fit_transform(x_train)
+	x_val_norm   = scaler.transform(x_val)
+	x_test_norm  = scaler.transform(x_test)
+	
+	np.set_printoptions(threshold=np.inf)
+	
 	return x_train_norm,x_val_norm,x_test_norm
 
 #MinMaxScalerによる正規化
@@ -178,22 +179,16 @@ def main():
 	
 	#検証、テストデータの分割
 	x_val,x_test,y_val,y_test=data_split(x_2,y_2,data2_fraction=0.5)
-	
-	#Zスコアによる正規化のための平均値、標準偏差を算出
-	x_mean,x_std=calc_mean_std(x_train)
-	
-
+		
 	#正規化を行う
 	scaler='Zscore'
 	#scaler='MinMax'
-	
 	if scaler=='Zscore':
-		#正規化(Zスコア)
-		x_train_norm,x_val_norm,x_test_norm=zscore_nomalization(x_train,x_val,x_test,x_mean,x_std)
+		#標準化(Zスコア)
+		x_train_norm,x_val_norm,x_test_norm=standard_scaler(x_train,x_val,x_test)
 	if scaler=='MinMax':
 		#正規化(MinMaxScaler)
 		x_train_norm,x_val_norm,x_test_norm=minmax_normalization(x_train,x_val,x_test)
-	
 	
 	#モデルの生成
 	model=model_make()
@@ -207,7 +202,7 @@ def main():
 	
 	if loss=='crossentropy':
 		model_compile_crossentropy(model) 
-	
+	"""
 	#アーリーストッピング
 	patience=10
 	best='True'
