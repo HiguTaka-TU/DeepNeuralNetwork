@@ -31,6 +31,13 @@ def data_split(CT_values,spectrum,data2_fraction):
 	
 	return x_1,x_2,y_1,y_2
 
+#データフレームから列を削除
+def drop_df(data_df,col):
+	data=data_df.drop(col,axis=1)
+	
+	return data
+
+
 #平均、標準偏差の計算
 def calc_mean_std(x_train):
 	xmean=np.mean(x_train,axis=0)
@@ -64,7 +71,7 @@ def minmax_normalization(x_train,x_val,x_test):
 #モデルの生成
 def model_make():
 	model = tf.keras.Sequential([
-    	tf.keras.layers.Dense(14,input_shape=(14,)),
+    	tf.keras.layers.Dense(13,input_shape=(13,)),
     	tf.keras.layers.Dense(6000,activation='relu'),
     	tf.keras.layers.Dense(4000,activation='relu'),
     	tf.keras.layers.Dense(2000,activation='relu'),
@@ -98,12 +105,12 @@ def early_stopping(patience,best):
 
 
 #モデルをフィッティングする
-def model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val,early_stopping):
+def model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val):
 	stack=model.fit(x_train_norm,y_train,
 			epochs=epochs,
 			batch_size=batch_size,
-			validation_data=(x_val_norm,y_val),
-			callbacks=[early_stopping])	
+			validation_data=(x_val_norm,y_val))
+			#callbacks=[early_stopping])	
 	return stack
 
 #学習曲線を表示
@@ -128,14 +135,25 @@ def test_predictions(model,x_test_norm):
 	return predictions
 
 #推定結果と真値とのRMSEを計算
-def evaluation(test_predictions,y_test):
+def evaluation_rmse(test_predictions,y_test):
 	MSE=mean_squared_error(test_predictions,y_test)
 	RMSE=np.sqrt(MSE)
+
+	return RMSE
 	
+def rmse_minmax_number(RMSE):
 	RMSE_max_number=np.argmax(RMSE)
 	RMSE_min_number=np.argmin(RMSE)
 
-	return RMSE,RMSE_max_number,RMSE,min_number
+	return RMSE_max_number,RMSE_min_number
+
+def rmse_over_limit(RMSE,test_size,limit):
+	number=[]
+	for i in range(test_size):
+		if RMSE[i]>limit:
+			number.append(i)
+
+	return number
 
 #RMSEが最も大きい(最も外れた結果)を表示
 def evaluation_RMSE_max_fig(RMSE_max_number):
@@ -172,15 +190,20 @@ def main():
 	
 	#データの読み込み
 	CT_values,spectrum=load_data_pd(input_file,output_file)
-	
-	
+	pd.set_option('display.max_columns', 100)
+
+	CT_values=drop_df(CT_values,5)
+
 	#訓練データの分割
 	x_train,x_2,y_train,y_2=data_split(CT_values,spectrum,data2_fraction=0.3)
 	
 	#検証、テストデータの分割
 	x_val,x_test,y_val,y_test=data_split(x_2,y_2,data2_fraction=0.5)
-		
+	#真値の出力
+	y_test.to_csv('true_value.csv',float_format='%.6f',header=False,index=False)
+			
 	#正規化を行う
+
 	scaler='Zscore'
 	#scaler='MinMax'
 	if scaler=='Zscore':
@@ -202,25 +225,36 @@ def main():
 	
 	if loss=='crossentropy':
 		model_compile_crossentropy(model) 
-	"""
+	
 	#アーリーストッピング
+	"""
 	patience=10
 	best='True'
 	early_stopping=early_stopping(patience,best)
-
+	"""
+	
 	#モデルフィット
 	epochs,batch_size=1,32
-	stack=model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val,early_stopping)
+	stack=model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val)
 	
 	#学習曲線の表示
 	compare_tv(stack,epochs,batch_size)
 
 	#推定
 	predictions=test_predictions(model,x_test_norm)
+	#推定値の出力
+	np.savetxt('predict_value.csv',predictions,fmt='%.6f',delimiter=',')
 
+	#rmseの計算
+	rmse_all=[]
+	for i in range(1500):
+		rmse=evaluation_rmse(predictions[i],y_test.iloc[i])
+		rmse_all.append(rmse)
+	np.savetxt('rmse_10000.csv',rmse_all,fmt='%.6f')
+	
 	#モデルの保存
 	model_name='DNN_{0}_{1}.h5'.format(scaler,loss)
 	model_save(model,model_name)
-	"""
+	
 if __name__=="__main__":
 	main()
