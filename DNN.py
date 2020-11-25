@@ -234,7 +234,7 @@ def main():
 	"""
 	
 	#モデルフィット
-	epochs,batch_size=1,32
+	epochs,batch_size=1000,32
 	stack=model_fit(model,x_train_norm,y_train,epochs,batch_size,x_val_norm,y_val)
 	
 	#学習曲線の表示
